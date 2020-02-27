@@ -7,12 +7,12 @@ This repository contains the implementation of our CVPR 2020 paper, 'Resolution 
 
 ## Results
 
-<div align=center><img width="800" height="250" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/anytime_results.png"/></div>
+<div align=center><img width="800" height="230" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/anytime_results.png"/></div>
 
 Accuracy (top-1) of anytime prediction models as a function of computational budget on the CIFAR-10 (left), CIFAR-100
 (middle) and ImageNet (right) datasets. Higher is better.
 
-<div align=center><img width="800" height="250" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
+<div align=center><img width="800" height="230" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
  
 Accuracy (top-1) of budgeted batch classification models as a function of average computational budget per image the on CIFAR-
 10 (left), CIFAR-100 (middle) and ImageNet (right) datasets. Higher is better.
@@ -38,12 +38,12 @@ python main.py --arch RANet --gpu '0' --data-root {your data root} --data 'cifar
 ```
  
 ### Train a RANet on ImageNet
-Modify the train_imagenet.sh to config your path to the dataset, your GPU devices and your saving directory. Then run
+* Modify the train_imagenet.sh to config your path to the dataset, your GPU devices and your saving directory. Then run
 ```sh
 bash train_imagenet.sh
 ```
 
-Or, you can train your RANet with other configurations.
+* You can train your RANet with other configurations.
 ```sh
 python main.py --arch RANet --gpu '0,1,2,3' --data-root {your data root} --data 'ImageNet' --step 8 --growthRate 16 --nChannels 32 --stepmode 'even' --scale-list '1-2-3-4' --grFactor '4-2-2-1' --bnFactor '4-2-2-1'
 ```
@@ -55,4 +55,12 @@ If you find this work useful or use our codes in your own research, please use t
 ```sh
 git clone https://github.com/github_username/repo.git
 ```
+
+### Contact
+If you have any questions, please feel free to contact the authors. Le Yang: yangle15@mails.tsinghua.edu.cn
+
+### Acknowledgments
+We use the pytorch implementation of MSDNet in our experiments. The code can be found [here](https://github.com/kalviny/MSDNet-PyTorch).
+
+
 
