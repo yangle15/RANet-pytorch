@@ -1,4 +1,5 @@
 # Resolution Adaptive Networks for Efficient Inference (CVPR2020)
+[Le Yang*](https://github.com/yangle15), [Yizeng Han*](https://github.com/thuallen), Xi Chen*, Shiji Song, [Jifeng Dai](https://github.com/daijifeng001), [Gao Huang](https://github.com/gaohuang)
 
 This repository contains the implementation of our CVPR 2020 paper, 'Resolution Adaptive Networks for Efficient Inference'. The proposed Resolution Adaptive Networks (RANet) conduct the adaptive inferece by exploiting the ``spatial redundancy`` of input images. Our motivation is that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information, which can be demonstrated by the follow figure.
 
@@ -6,8 +7,15 @@ This repository contains the implementation of our CVPR 2020 paper, 'Resolution 
 
 ## Results
 
-<div align=center><img width="800" height="300" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/anytime_results.png"/></div>
-<div align=center><img width="800" height="300" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
+<div align=center><img width="800" height="250" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/anytime_results.png"/></div>
+
+Accuracy (top-1) of anytime prediction models as a function of computational budget on the CIFAR-10 (left), CIFAR-100
+(middle) and ImageNet (right) datasets. Higher is better.
+
+<div align=center><img width="800" height="250" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
+ 
+Accuracy (top-1) of budgeted batch classification models as a function of average computational budget per image the on CIFAR-
+10 (left), CIFAR-100 (middle) and ImageNet (right) datasets. Higher is better.
 
 ## Dependencies:
 
@@ -26,18 +34,18 @@ bash train_cifar.sh
 
 * You can train your RANet with other configurations.
 ```sh
-python main.py --arch RANet --data-root {your data root} --data 'cifar10' --step 2 --nChannels 16 --stepmode 'lg' --scale-list '1-2-3' --grFactor '4-2-1' --bnFactor '4-2-1'
+python main.py --arch RANet --gpu '0' --data-root {your data root} --data 'cifar10' --step 2 --nChannels 16 --stepmode 'lg' --scale-list '1-2-3' --grFactor '4-2-1' --bnFactor '4-2-1'
 ```
  
 ### Train a RANet on ImageNet
-Modify the run_GE.sh to config your path to the dataset, your GPU devices and your saving directory. Then run
+Modify the train_imagenet.sh to config your path to the dataset, your GPU devices and your saving directory. Then run
 ```sh
 bash train_imagenet.sh
 ```
 
 Or, you can train your RANet with other configurations.
 ```sh
-python main.py --arch RANet --data-root {your data root} --data 'ImageNet' --step 8 --growthRate 16 --nChannels 32 --stepmode 'even' --scale-list '1-2-3-4' --grFactor '4-2-2-1' --bnFactor '4-2-2-1'
+python main.py --arch RANet --gpu '0,1,2,3' --data-root {your data root} --data 'ImageNet' --step 8 --growthRate 16 --nChannels 32 --stepmode 'even' --scale-list '1-2-3-4' --grFactor '4-2-2-1' --bnFactor '4-2-2-1'
 ```
 
 
