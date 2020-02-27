@@ -1,5 +1,4 @@
 import os
-import plot_yl as p
 
 
 def run_exp_cmd(scale, arch, compress_factor, stepmode, data, gpu, evalmode):
@@ -37,11 +36,11 @@ def run_exp_cmd(scale, arch, compress_factor, stepmode, data, gpu, evalmode):
 
     
     save_dir = f'save/2020weight2/{data}-{modelname}'
-    cmd = f'python main_v5_2.py --arch {arch}\
+    cmd = f'python main.py --arch {arch}\
         --data-root /home/hanyz/msdnet-v5-no-use/data --data {data} --save {save_dir}\
         --nBlocks 2 --step {s} --stepmode {stepmode} --use-valid\
         --nChannels 16 --growthRate 6 --batch-size 64 --epochs 300\
-        --gpu {gpu} --compress-factor {compress_factor} --scale-list {scale} --grFactor {gbf} --bnFactor {gbf} --workers 4'
+        --compress-factor {compress_factor} --scale-list {scale} --grFactor {gbf} --bnFactor {gbf}'
     
     if evalmode is not None:
         cmd += f' --evalmode {evalmode} --evaluate-from {save_dir}/save_models/model_best.pth.tar'
@@ -66,12 +65,12 @@ class myThread (threading.Thread):
         os.system(self.cmd) 
 
 
-alpha_L = ['1-2-3-3']#,'1-2-3-3', '1-2-3']#, 1e-4, 1e-5]
+alpha_L = ['1-2-3']#, 1e-4, 1e-5]
 c_L = [0.25]#, 0.5]#, 0.5]#, 0.05, 0.07, 0.1]
 gpu_L = ['1','0']
-data = ['cifar10','cifar100']
+data = ['cifar10']#,'cifar100']
 sm = ['even']#, 'lg']
-arch = 'msdnetv5_ba'
+arch = 'RANet'
 
 _evalmode = None
 #_evalmode = 'both'

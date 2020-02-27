@@ -3,9 +3,9 @@ import glob
 import time
 import argparse
 
-model_names = ['msdnet', 'msdnetv5','msdnetv5_ba_drop','msdnetv5_ba','ranet1']
+model_names = ['RANet']
 
-arg_parser = argparse.ArgumentParser(description='Image classification PK main script')
+arg_parser = argparse.ArgumentParser(description='RANet Image classification')
 
 exp_group = arg_parser.add_argument_group('exp', 'experiment setting')
 exp_group.add_argument('--save', default='save/default-{}'.format(time.time()),
@@ -39,12 +39,7 @@ data_group.add_argument('-j', '--workers', default=4, type=int, metavar='N',
 
 # model arch related
 arch_group = arg_parser.add_argument_group('arch', 'model architecture setting')
-# arch_group.add_argument('--arch', metavar='ARCH', default='msdnet',
-#                         type=str, choices=model_names,
-#                         help='model architecture: ' +
-#                         ' | '.join(model_names) +
-#                         ' (default: msdnet)')
-arch_group.add_argument('--arch', type=str, default='msdnet')
+arch_group.add_argument('--arch', type=str, default='RANet')
 arch_group.add_argument('--reduction', default=0.5, type=float,
                         metavar='C', help='compression ratio of DenseNet'
                         ' (1 means dot\'t use compression) (default: 0.5)')
@@ -57,19 +52,15 @@ arch_group.add_argument('--grFactor', default='4-2-1', type=str)
 arch_group.add_argument('--bnFactor', default='4-2-1', type=str)
 arch_group.add_argument('--block-step', type=int, default=2)
 arch_group.add_argument('--scale-list', default='1-2-3', type=str)
-arch_group.add_argument('--compress-factor', default=0.5, type=float)
+arch_group.add_argument('--compress-factor', default=0.25, type=float)
 arch_group.add_argument('--step', type=int, default=4)
 arch_group.add_argument('--stepmode', type=str, default='even', choices=['even', 'lg'])
+arch_group.add_argument('--bnAfter', action='store_true', default=True)
 
-# not used in msdnetV5
-# arch_group.add_argument('--stepmode', default='even', type=str, choices=['even', 'lin_grow'])
-# arch_group.add_argument('--prune', default='max', choices=['min', 'max'])
-# arch_group.add_argument('--base', type=int, default=1)
-# arch_group.add_argument('--bottleneck', default=True, type=bool)
 
 # training related
 optim_group = arg_parser.add_argument_group('optimization', 'optimization setting')
-optim_group.add_argument('--epochs', default=160, type=int, metavar='N',
+optim_group.add_argument('--epochs', default=300, type=int, metavar='N',
                          help='number of total epochs to run (default: 300)')
 optim_group.add_argument('--start-epoch', default=0, type=int, metavar='N',
                          help='manual epoch number (useful on restarts)')
@@ -97,7 +88,6 @@ args.grFactor = list(map(int, args.grFactor.split('-')))
 args.bnFactor = list(map(int, args.bnFactor.split('-')))
 args.scale_list = list(map(int, args.scale_list.split('-')))
 args.nScales = len(args.grFactor)
-# args.num_exits = args.nBlocks + (args.nScales - 1) * args.Block_step
 
 if args.use_valid:
     args.splits = ['train', 'val', 'test']

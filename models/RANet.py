@@ -238,7 +238,7 @@ class RAFirstLayer(nn.Module):
 
 class RANet(nn.Module):
     def __init__(self, args):
-        super(MSDNet, self).__init__()
+        super(RANet, self).__init__()
         self.scale_flows = nn.ModuleList()
         self.classifier = nn.ModuleList()
         

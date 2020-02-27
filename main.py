@@ -5,7 +5,7 @@ import shutil
 import models
 
 from dataloader import get_dataloaders
-from args_v5 import args
+from args import args
 from adaptive_inference import dynamic_evaluate
 from op_counter import measure_model
 

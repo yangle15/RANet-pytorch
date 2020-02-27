@@ -4,213 +4,159 @@ from __future__ import print_function
 from __future__ import division
 
 import os
-import time
 import math
-import warnings
+import torch
+import torch.nn as nn
 
-
-def DynamicEvaluate(model, test_loader, val_loader, args):
+def dynamic_evaluate(model, test_loader, val_loader, args):
     tester = Tester(model, args)
-    if os.path.exists(os.path.join(args.save, 'logits_greedy.pth')):
-        val_pred_greedy, val_target, test_pred_greedy, test_target = \
-            torch.load(os.path.join(args.save, 'logits_greedy.pth'))
-    else:
-        if os.path.exists(os.path.join(args.save, 'logits_single.pth')):
-            val_pred_single, val_target, test_pred_single, test_target = \
-                torch.load(os.path.join(args.save, 'logits_single.pth'))
-        else:
-            val_pred_single, val_target = tester.calc_logit(val_loader)
-            test_pred_single, test_target = tester.calc_logit(test_loader)
-            torch.save((val_pred_single, val_target, test_pred_single, test_target),
-                       os.path.join(args.save, 'logits_single.pth'))
+    if os.path.exists(os.path.join(args.save, 'logits_single.pth')): 
+        val_pred, val_target, test_pred, test_target = \
+            torch.load(os.path.join(args.save, 'logits_single.pth')) 
+    else: 
+        val_pred, val_target = tester.calc_logit(val_loader) 
+        test_pred, test_target = tester.calc_logit(test_loader) 
+        torch.save((val_pred, val_target, test_pred, test_target), 
+                    os.path.join(args.save, 'logits_single.pth'))
 
-        # early_exit
-        best_ensemble_scheme = tester.find_greedy_ensemble(val_pred_single, val_target)
-        val_pred_greedy, val_res = \
-            tester.early_exit(val_pred_single, val_target, best_ensemble_scheme)
-        test_pred_greedy, test_res = \
-            tester.early_exit(test_pred_single, test_target, best_ensemble_scheme)
-
-        torch.save((val_pred_greedy, val_target,
-                    test_pred_greedy, test_target),
-                   os.path.join(args.save, 'logits_greedy.pth'))
-        print(test_res)
-        torch.save((best_ensemble_scheme, test_res), 'early_exit_res.pth')
-
-    # load flops
     flops = torch.load(os.path.join(args.save, 'flops.pth'))
-    # dynamic evaluation
-    for p in range(1, 41):
-        _p = torch.FloatTensor(1).fill_(p * 1.0 / 20)
-        # probs = [math.exp(math.log(p) * i) for i in in range(1, tester.args.nBlocks + 1)] # geometric distribution
-        probs = torch.exp(torch.log(_p) * torch.range(1, tester.args.nBlocks))
-        probs /= probs.sum()
-        print(p, probs)
-        acc_val, _, T = tester.dynamic_eval_find_threshold(
-            val_pred_greedy, val_target, probs, flops)
-        acc_test, exp_flops = tester.dynamic_eval_with_threshold(
-            test_pred_greedy, test_target, flops, T)
+
+    acc_list, exp_flops_list = [], []
+    with open(os.path.join(args.save, 'dynamic.txt'), 'w') as fout:
+        samples = {}
+        for p in range(1, 40):
+            print("*********************")
+            _p = torch.FloatTensor(1).fill_(p * 1.0 / 20)
+            probs = torch.exp(torch.log(_p) * torch.range(1, args.num_exits))
+            probs /= probs.sum()
+            acc_val, _, T = tester.dynamic_eval_find_threshold(
+                val_pred, val_target, probs, flops)
+            acc_test, exp_flops, exit_buckets = tester.dynamic_eval_with_threshold(
+                test_pred, test_target, flops, T)
+            print('valid acc: {:.3f}, test acc: {:.3f}, test flops: {:.2f}M'.format(acc_val, acc_test, exp_flops / 1e6))
+            fout.write('{}\t{}\n'.format(acc_test, exp_flops.item()))
+            acc_list.append(acc_test)
+            exp_flops_list.append(exp_flops)
+            samples[p] = exit_buckets
+    torch.save([exp_flops_list, acc_list], os.path.join(args.save, 'dynamic.pth'))
+    torch.save(samples, os.path.join(args.save, 'exit_samples_by_p.pth'))
+    # return acc_list, exp_flops_list
+
 
 class Tester(object):
     def __init__(self, model, args=None):
-        self.model = model
-        self.softmax = torch.nn.Softmax(dim=1).cuda()
         self.args = args
+        self.model = model
+        self.softmax = nn.Softmax(dim=1).cuda()
 
-    def calc_logit(self, val_loader, silence=False):
+    def calc_logit(self, dataloader):
         self.model.eval()
-        print("calculating logit")
-        logits = [[] for _ in xrange(self.args.nBlocks)]
+        n_stage = self.args.num_exits
+        logits = [[] for _ in range(n_stage)]
         targets = []
-
-        for i, (input, target) in enumerate(val_loader):
+        for i, (input, target) in enumerate(dataloader):
             targets.append(target)
+            with torch.no_grad():
+                input_var = torch.autograd.Variable(input)
+                output = self.model(input_var)
+                if not isinstance(output, list):
+                    output = [output]
+                for b in range(n_stage):
+                    _t = self.softmax(output[b])
 
-            input = input.cuda()
-            input_var = torch.autograd.Variable(input, volatile=True)
-            # compute output
-            output = self.model(input_var)
-            if not isinstance(output, list):
-                output = [output]
+                    logits[b].append(_t) 
 
-            for j in range(self.args.nBlocks):
-                tmp = self.softmax(output[j])
-                logits[j].append(tmp.cpu())
+            if i % self.args.print_freq == 0: 
+                print('Generate Logit: [{0}/{1}]'.format(i, len(dataloader)))
 
+        for b in range(n_stage):
+            logits[b] = torch.cat(logits[b], dim=0)
 
-        for i in range(self.args.nBlocks):
-            logits[i] = torch.cat(logits[i], dim=0)
+        size = (n_stage, logits[0].size(0), logits[0].size(1))
+        ts_logits = torch.Tensor().resize_(size).zero_()
+        for b in range(n_stage):
+            ts_logits[b].copy_(logits[b])
 
         targets = torch.cat(targets, dim=0)
-        print("finished!")
+        ts_targets = torch.Tensor().resize_(size[1]).copy_(targets)
 
-        return logits, targets
+        return ts_logits, ts_targets
 
-    def find_greedy_ensemble(self, logits, targets):
-        greedy_scheme = [0]
+    def dynamic_eval_find_threshold(self, logits, targets, p, flops):
+        """
+            logits: m * n * c
+            m: Stages
+            n: Samples
+            c: Classes
+        """
+        n_stage, n_sample, c = logits.size()
 
-        for num_block in range(1, len(logits)):
-            accum_pred = torch.FloatTensor().resize_(logits[0].size()).zero_()
-            for start_block_num in range(num_block):
-                accum_pred += logits[start_block_num].data
+        max_preds, argmax_preds = logits.max(dim=2, keepdim=False)
 
-            best_err, _ = error(accum_pred / (num_block + 1), targets, topk=(1, 5))
-            # print(1, num_block, best_err[0])
-            greedy_scheme.append(0)
-
-            for start_block_num in range(num_block - 1):
-                accum_pred -= logits[start_block_num].data
-                tmp_err, _ = error(accum_pred / (num_block + 1), targets, topk=(1, 5))
-                # print(start_block_num + 1, num_block, tmp_err[0])
-                if tmp_err[0] < best_err[0]:
-                    best_err[0] = tmp_err[0]
-                    greedy_scheme[-1] = start_block_num + 1
-
-        print("greedy scheme", greedy_scheme)
-        return greedy_scheme
-
-    def early_exit(self, logits, targets, greedy_scheme: list):
-        print("early exit")
-        N = self.args.nBlocks
-        logits_greedy = []
-        err_greedy = []
-        for num_block in range(N):
-            if num_block == 0:
-                accum_pred = logits[0].data
-            else:
-                accum_pred = torch.FloatTensor().resize_(logits[0].size()).zero_()
-                for j in range(greedy_scheme[num_block], num_block + 1):
-                    accum_pred += logits[j].data
-                accum_pred /= (num_block - greedy_scheme[num_block] + 1) # ensemble of logits
-            best_err, _ = error(accum_pred, targets, topk=(1, 5))
-            # print(num_block, best_err[0])
-
-            err_greedy.append(best_err[0])
-            logits_greedy.append(accum_pred.view(1, accum_pred.size(0), accum_pred.size(1)))
-
-        logits_greedy = torch.cat(logits_greedy, dim=0)
-        return logits_greedy, err_greedy
-
-    def dynamic_eval_find_threshold(self, logits, targets, p, flops, silence=True):
-        # m: num of model (exits)
-        # n: num of samples
-        m, n, _ = logits.shape
-        max_preds, argmax_preds = logits.max(dim=2, keepdim=False) # take max logits as confidence
         _, sorted_idx = max_preds.sort(dim=1, descending=True)
 
-        filtered = torch.zeros(n) # samples that has been filtered out
-        T = torch.Tensor(m).fill_(1e8) # threshold for each models (exits)
+        filtered = torch.zeros(n_sample)
+        T = torch.Tensor(n_stage).fill_(1e8)
 
-        for k in range(m - 1):
-            acc, count = 0, 0
-            out_n = math.floor(n * p[k])
-            for i in range(n):
+        for k in range(n_stage - 1):
+            acc, count = 0.0, 0
+            out_n = math.floor(n_sample * p[k])
+            for i in range(n_sample):
                 ori_idx = sorted_idx[k][i]
                 if filtered[ori_idx] == 0:
                     count += 1
                     if count == out_n:
                         T[k] = max_preds[k][ori_idx]
                         break
-
-            print("classifier #",k + 1, "output # samples", out_n, "thresholds: ", T[k])
             filtered.add_(max_preds[k].ge(T[k]).type_as(filtered))
 
-        T[m - 1] = -1e8  # accept all the samples at last exit
+        T[n_stage -1] = -1e8 # accept all of the samples at the last stage
 
-        acc_rec, exp = torch.zeros(m), torch.zeros(m)
+        acc_rec, exp = torch.zeros(n_stage), torch.zeros(n_stage)
         acc, expected_flops = 0, 0
-        for i in range(n):
+        for i in range(n_sample):
             gold_label = targets[i]
-            for k in range(m):
-                if max_preds[k][i] >= T[k]: # this sample should exit at k
-                    if gold_label == argmax_preds[k][i]:
+            for k in range(n_stage):
+                if max_preds[k][i].item() >= T[k]: # force the sample to exit at k
+                    if int(gold_label.item()) == int(argmax_preds[k][i].item()):
                         acc += 1
                         acc_rec[k] += 1
                     exp[k] += 1
                     break
-
         acc_all = 0
-        for k in range(m):
-            tmp = exp[k] / n
-            expected_flops += tmp * flops[k]
+        for k in range(n_stage):
+            _t = 1.0 * exp[k] / n_sample
+            expected_flops += _t * flops[k]
             acc_all += acc_rec[k]
-            if not silence:
-                try:
-                    print("acc of each:", acc_rec[k] / exp[k], 'accummulate:', acc_rec[k],
-                          'T: ', T[k])
-                except ZeroDivisionError:
-                    pass
 
-        print("acc_all", acc_all / n)
-        return acc / n, expected_flops, T
+        return acc * 100.0 / n_sample, expected_flops, T
 
-    def dynamic_eval_with_threshold(self, logits, targets, flops, T, silence=True):
-        m, n, _ = logits.shape
-        max_preds, argmax_preds = logits.max(dim=2, keepdim=False) # take max logits as confidence
+    def dynamic_eval_with_threshold(self, logits, targets, flops, T):
+        n_stage, n_sample, _ = logits.size()
+        max_preds, argmax_preds = logits.max(dim=2, keepdim=False) # take the max logits as confidence
 
-        acc_rec, exp = torch.zeros(m), torch.zeros(m)
+        exit_buckets = {i:{j:[] for j in range(n_stage)} for i in range(1000)} # for each exit use a bucket to keep track of samples outputing from it
+
+        acc_rec, exp = torch.zeros(n_stage), torch.zeros(n_stage)
         acc, expected_flops = 0, 0
-        for i in range(n):
+        for i in range(n_sample):
             gold_label = targets[i]
-            for k in range(m):
-                if max_preds[k][i] >= T[k]: # this sample should exit at k
-                    if gold_label == argmax_preds[k][i]:
+            for k in range(n_stage):
+                if max_preds[k][i].item() >= T[k]: # force to exit at k
+                    _g = int(gold_label.item())
+                    _pred = int(argmax_preds[k][i].item())
+                    if _g == _pred:
                         acc += 1
                         acc_rec[k] += 1
                     exp[k] += 1
+                    exit_buckets[int(gold_label)][k].append(i)
                     break
 
-        acc_all = 0
-        for k in range(m):
-            tmp = exp[k] / n
-            expected_flops += tmp * flops[k]
+        acc_all, sample_all = 0, 0
+        for k in range(n_stage):
+            _t = exp[k] * 1.0 / n_sample
+            sample_all += exp[k]
+            expected_flops += _t * flops[k]
             acc_all += acc_rec[k]
-            if not silence:
-                try:
-                    print("acc of each:", acc_rec[k] / exp[k], 'accummulate:', acc_rec[k],
-                          'T: ', T[k])
-                except ZeroDivisionError:
-                    pass
 
-        print("acc_all", acc_all / n)
-        return acc / n, expected_flops
+        return acc * 100.0 / n_sample, expected_flops, exit_buckets
