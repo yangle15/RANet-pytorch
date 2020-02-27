@@ -1,148 +1,50 @@
 # Resolution Adaptive Networks for Efficient Inference (CVPR2020)
-Code for the paper 'Resolution Adaptive Networks (RANet) for Efficient Inference'.
 
+This repository contains the implementation of our CVPR 2020 paper, 'Resolution Adaptive Networks for Efficient Inference'. The proposed Resolution Adaptive Networks (RANet) conduct the adaptive inferece by exploiting the ``spatial redundancy`` of input images. Our motivation is that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information, which can be demonstrated by the follow figure.
 
+<div align=center><img width="410" height="350" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/RANet_overview.png"/></div>
 
-<!-- TABLE OF CONTENTS -->
-## Table of Contents
+## Results
 
-* [About the Project](#about-the-project)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
+<div align=center><img width="800" height="300" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/anytime_results.png"/></div>
+<div align=center><img width="800" height="300" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
 
+## Dependencies:
 
+* Python3
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+* PyTorch >= 1.0
 
-Existing adaptive inference researches mainly exploit the ``architecture redundancy`` of deep models from the perspective of network depth or width. In this project, we focus on the ``spatial redundancy`` of images and propose a Resolution Adaptive Network (RANet), which is inspired by the intuition that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information. In a RANet, the input images are first routed to an efficient sub-network that only extracts low-resolution feature representations, and those with high prediction confidence will exit early from the network without being further processed. 
+## Usage
+We Provide shell scripts for training a RANet on CIFAR and ImageNet.
 
-<div align=center><img width="550" height="500" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/RANet_overview.png"/></div>
-
-The above figure shows classifying images containing an owl. After generating multi-scale features, the canonical sample in (a) can be accurately recognized by the sub-network with the lowest resolution. The sub-networks which do not participate in the easy sample classification are depicted by limpid color. As the network fails to provide a high confidence prediction for the hard image in (b), accurate prediction of this sample requires a computationally more expensive architecture with features of higher resolution.
-
-<div align=center><img width="550" height="500" src="https://github.com/yangle15/RANetpytorch/blob/master/imgs/anytime_results.png"/></div>
-<div align=center><img width="550" height="500" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
-
-
-
-
-If you find this work useful or use our codes in your own research, please use the following bibtex:
-
-Here's a blank template to get started:
-**To avoid retyping too much info. Do a search and replace with your text editor for the following:**
-`github_username`, `repo`, `twitter_handle`, `email`
-
-
-### Built With
-
-* []()
-* []()
-* []()
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-To get a local copy up and running follow these simple steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+### Train a RANet on CIFAR
+* Modify the train_cifar.sh to config your path to the dataset, your GPU devices and your saving directory. Then run
 ```sh
-npm install npm@latest -g
+bash train_cifar.sh
 ```
 
-### Installation
+* You can train your RANet with other configurations.
+```sh
+python main.py --arch RANet --data-root {your data root} --data 'cifar10' --step 2 --nChannels 16 --stepmode 'lg' --scale-list '1-2-3' --grFactor '4-2-1' --bnFactor '4-2-1'
+```
  
-1. Clone the repo
+### Train a RANet on ImageNet
+Modify the run_GE.sh to config your path to the dataset, your GPU devices and your saving directory. Then run
+```sh
+bash train_imagenet.sh
+```
+
+Or, you can train your RANet with other configurations.
+```sh
+python main.py --arch RANet --data-root {your data root} --data 'ImageNet' --step 8 --growthRate 16 --nChannels 32 --stepmode 'even' --scale-list '1-2-3-4' --grFactor '4-2-2-1' --bnFactor '4-2-2-1'
+```
+
+
+
+### Citation
+If you find this work useful or use our codes in your own research, please use the following bibtex:
 ```sh
 git clone https://github.com/github_username/repo.git
 ```
-2. Install NPM packages
-```sh
-npm install
-```
 
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/github_username/repo/issues) for a list of proposed features (and known issues).
-
-
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
-
-<!-- CONTACT -->
-## Contact
-
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email
-
-Project Link: [https://github.com/github_username/repo](https://github.com/github_username/repo)
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-
-* []()
-* []()
-* []()
-
-
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=flat-square
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=flat-square
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=flat-square
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=flat-square
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=flat-square
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
