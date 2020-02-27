@@ -7,7 +7,6 @@ Code for the paper 'Resolution Adaptive Networks (RANet) for Efficient Inference
 ## Table of Contents
 
 * [About the Project](#about-the-project)
-  * [Built With](#built-with)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
@@ -23,9 +22,19 @@ Code for the paper 'Resolution Adaptive Networks (RANet) for Efficient Inference
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![](https://github.com/yangle15/RANet-pytorch/imgs/RANet_overview.png)
+Existing adaptive inference researches mainly exploit the ``architecture redundancy`` of deep models from the perspective of network depth or width. In this project, we focus on the ``spatial redundancy`` of images and propose a Resolution Adaptive Network (RANet), which is inspired by the intuition that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information. In a RANet, the input images are first routed to an efficient sub-network that only extracts low-resolution feature representations, and those with high prediction confidence will exit early from the network without being further processed. 
 
-Existing adaptive inference researches mainly exploit the architecture redundancy of deep models from the perspective of network depth or width. In this project, we focus on the spatial redundancy of images and propose a Resolution Adaptive Network (RANet), which is inspired by the intuition that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information. In a RANet, the input images are first routed to an efficient sub-network that only extracts low-resolution feature representations, and those with high prediction confidence will exit early from the network without being further processed. Meanwhile, the high-resolution paths in the network maintain the capability to correctly classify the hard samples. Therefore, RANet can effectively reduce the spatial redundancy involved in inferring high-resolution inputs. 
+<div align=center><img width="550" height="500" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/RANet_overview.png"/></div>
+
+The above figure shows classifying images containing an owl. After generating multi-scale features, the canonical sample in (a) can be accurately recognized by the sub-network with the lowest resolution. The sub-networks which do not participate in the easy sample classification are depicted by limpid color. As the network fails to provide a high confidence prediction for the hard image in (b), accurate prediction of this sample requires a computationally more expensive architecture with features of higher resolution.
+
+<div align=center><img width="550" height="500" src="https://github.com/yangle15/RANetpytorch/blob/master/imgs/anytime_results.png"/></div>
+<div align=center><img width="550" height="500" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
+
+
+
+
+If you find this work useful or use our codes in your own research, please use the following bibtex:
 
 Here's a blank template to get started:
 **To avoid retyping too much info. Do a search and replace with your text editor for the following:**
