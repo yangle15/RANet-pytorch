@@ -426,11 +426,12 @@ if __name__ == '__main__':
     
     args.nBlocks = 2
     args.Block_base = 2
-    args.step = 4
-    args.stepmode ='lg'
+    args.step = 8
+    args.stepmode ='even'
     args.compress_factor = 0.25
-    args.nChannels = 32
+    args.nChannels = 64
     args.data = 'ImageNet'
+    args.growthRate = 16
     
     args.grFactor = '4-2-2-1'
     args.bnFactor = '4-2-2-1'
