@@ -1,1 +1,1 @@
-python main.py --arch RANet --data-root /home/hanyz/msdnet-v5-no-use/data --data 'cifar10' --step 4 --stepmode 'even' --scale-list '1-2-3-3' --grFactor '4-2-1-1' --bnFactor '4-2-1-1'
+python main.py --arch RANet --data-root {your data root} --data 'cifar10' --step 4 --stepmode 'even' --scale-list '1-2-3-3' --grFactor '4-2-1-1' --bnFactor '4-2-1-1'
