@@ -1,5 +1,5 @@
 # Resolution Adaptive Networks for Efficient Inference (CVPR2020)
-[Le Yang*](https://github.com/yangle15), [Yizeng Han*](https://github.com/thuallen), Xi Chen*, Shiji Song, [Jifeng Dai](https://github.com/daijifeng001), [Gao Huang](https://github.com/gaohuang)
+[Le Yang*](https://github.com/yangle15), [Yizeng Han*](https://github.com/thuallen), [Xi Chen*](https://github.com/FateDawnLeon), Shiji Song, [Jifeng Dai](https://github.com/daijifeng001), [Gao Huang](https://github.com/gaohuang)
 
 This repository contains the implementation of our CVPR 2020 paper, 'Resolution Adaptive Networks for Efficient Inference'. The proposed Resolution Adaptive Networks (RANet) conduct the adaptive inferece by exploiting the ``spatial redundancy`` of input images. Our motivation is that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information, which can be demonstrated by the follow figure.
 
