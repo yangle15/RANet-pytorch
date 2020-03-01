@@ -3,7 +3,7 @@
 
 This repository contains the implementation of our CVPR 2020 paper, 'Resolution Adaptive Networks for Efficient Inference'. The proposed Resolution Adaptive Networks (RANet) conduct the adaptive inferece by exploiting the ``spatial redundancy`` of input images. Our motivation is that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information, which can be demonstrated by the follow figure.
 
-<div align=center><img width="410" height="350" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/RANet_overview.png"/></div>
+<div align=center><img width="380" height="410" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/RANet_overview.png"/></div>
 
 ## Results
 
