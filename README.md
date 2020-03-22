@@ -34,7 +34,7 @@ bash train_cifar.sh
 
 * You can train your RANet with other configurations.
 ```sh
-python main.py --arch RANet --gpu '0' --data-root {your data root} --data 'cifar10' --step 2 --nChannels 16 --stepmode 'lg' --scale-list '1-2-3' --grFactor '4-2-1' --bnFactor '4-2-1'
+python main.py --arch RANet --gpu '0' --data-root YOUR_DATA_PATH --data 'cifar10' --step 2 --nChannels 16 --stepmode 'lg' --scale-list '1-2-3' --grFactor '4-2-1' --bnFactor '4-2-1'
 ```
  
 ### Train a RANet on ImageNet
@@ -45,7 +45,7 @@ bash train_imagenet.sh
 
 * You can train your RANet with other configurations.
 ```sh
-python main.py --arch RANet --gpu '0,1,2,3' --data-root {your data root} --data 'ImageNet' --step 8 --growthRate 16 --nChannels 32 --stepmode 'even' --scale-list '1-2-3-4' --grFactor '4-2-2-1' --bnFactor '4-2-2-1'
+python main.py --arch RANet --gpu '0,1,2,3' --data-root YOUR_DATA_PATH --data 'ImageNet' --step 8 --growthRate 16 --nChannels 32 --stepmode 'even' --scale-list '1-2-3-4' --grFactor '4-2-2-1' --bnFactor '4-2-2-1'
 ```
 
 
