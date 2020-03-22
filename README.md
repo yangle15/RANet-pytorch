@@ -1,7 +1,7 @@
 # Resolution Adaptive Networks for Efficient Inference (CVPR2020)
 [Le Yang*](https://github.com/yangle15), [Yizeng Han*](https://github.com/thuallen), [Xi Chen*](https://github.com/FateDawnLeon), Shiji Song, [Jifeng Dai](https://github.com/daijifeng001), [Gao Huang](https://github.com/gaohuang)
 
-This repository contains the implementation of our CVPR 2020 paper, 'Resolution Adaptive Networks for Efficient Inference'. The proposed Resolution Adaptive Networks (RANet) conduct the adaptive inferece by exploiting the ``spatial redundancy`` of input images. Our motivation is that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information, which can be demonstrated by the follow figure.
+This repository contains the implementation of the paper, '[Resolution Adaptive Networks for Efficient Inference](https://arxiv.org/pdf/2003.07326.pdf)'. The proposed Resolution Adaptive Networks (RANet) conduct the adaptive inferece by exploiting the ``spatial redundancy`` of input images. Our motivation is that low-resolution representations are sufficient for classifying easy samples containing large objects with prototypical features, while only some hard samples need spatially detailed information, which can be demonstrated by the follow figure.
 
 <div align=center><img width="380" height="410" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/RANet_overview.png"/></div>
 
@@ -52,8 +52,13 @@ python main.py --arch RANet --gpu '0,1,2,3' --data-root {your data root} --data 
 
 ### Citation
 If you find this work useful or use our codes in your own research, please use the following bibtex:
-```sh
-git clone https://github.com/github_username/repo.git
+```
+@inproceedings{yang2020resolution,
+  title={Resolution Adaptive Networks for Efficient Inference},
+  author={Yang, Le and Han, Yizeng and Chen, Xi and Song, Shiji and Dai, Jifeng and Huang, Gao},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  year={2020}
+}
 ```
 
 ### Contact
