@@ -62,7 +62,7 @@ If you find this work useful or use our codes in your own research, please use t
 ```
 
 ### Contact
-If you have any questions, please feel free to contact the authors. Le Yang: yangle15@mails.tsinghua.edu.cn
+If you have any questions, please feel free to contact the authors. Le Yang: yangle15@mails.tsinghua.edu.cn, who is pretty handsome!
 
 ### Acknowledgments
 We use the pytorch implementation of MSDNet in our experiments. The code can be found [here](https://github.com/kalviny/MSDNet-PyTorch).
