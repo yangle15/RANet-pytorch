@@ -91,7 +91,7 @@ def main():
                               train_prec1, val_prec1, train_prec5, val_prec5))
 
         is_best = val_prec1 > best_prec1
-        if is_best or (epoch == 299):
+        if is_best:
             best_prec1 = val_prec1
             best_epoch = epoch
             print('Best var_prec1 {}'.format(best_prec1))
