@@ -13,7 +13,7 @@ Accuracy (top-1) of anytime prediction models as a function of computational bud
 (middle) and ImageNet (right) datasets. Higher is better.
 
 <div align=center><img width="800" height="230" src="https://github.com/yangle15/RANet-pytorch/blob/master/imgs/dynamic_results.png"/></div>
- 
+
 Accuracy (top-1) of budgeted batch classification models as a function of average computational budget per image the on CIFAR-
 10 (left), CIFAR-100 (middle) and ImageNet (right) datasets. Higher is better.
 
@@ -36,7 +36,7 @@ bash train_cifar.sh
 ```sh
 python main.py --arch RANet --gpu '0' --data-root YOUR_DATA_PATH --data 'cifar10' --step 2 --nChannels 16 --stepmode 'lg' --scale-list '1-2-3' --grFactor '4-2-1' --bnFactor '4-2-1'
 ```
- 
+
 ### Train a RANet on ImageNet
 * Modify the train_imagenet.sh to config your path to the dataset, your GPU devices and your saving directory. Then run
 ```sh
@@ -62,7 +62,11 @@ If you find this work useful or use our codes in your own research, please use t
 ```
 
 ### Contact
-If you have any questions, please feel free to contact the authors. Le Yang: yangle15@mails.tsinghua.edu.cn
+If you have any questions, please feel free to contact the authors. 
+
+Le Yang: yangle15@mails.tsinghua.edu.cn
+
+Yizeng Han: [hanyz18@mails.tsinghua.edu.cn](mailto:hanyz18@mails.tsinghua.edu.cn)
 
 ### Acknowledgments
 We use the pytorch implementation of MSDNet in our experiments. The code can be found [here](https://github.com/kalviny/MSDNet-PyTorch).
